@@ -13,6 +13,7 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { BriefcaseBusiness, BringToFrontIcon, icons, User2Icon } from 'lucide-react';
 
 export default function BrandLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -20,11 +21,15 @@ export default function BrandLayout({ children }) {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard/brand', icon: HomeIcon },
-    { label: 'Requests', href: '/dashboard/brand/requests', icon: PaperAirplaneIcon },
-    // { label: 'Influencers', href: '/dashboard/brand/influencers', icon: UsersIcon },
+    // { label: 'Dashboard', href: '/dashboard/brand', icon: HomeIcon },
+    // { label: 'Requests', href: '/dashboard/brand/requests', icon: PaperAirplaneIcon },
     { label: 'Campaigns', href: '/dashboard/brand/campaigns', icon: BriefcaseIcon },
-    { label: 'Ratings', href: '/dashboard/brand/ratings', icon: StarIcon },
+    {label: 'Applications', href: '/dashboard/brand/Applications', icon: BriefcaseBusiness},
+    // {lable: 'Influencers', href: '/dashboard/brand/influencers', icon: User2Icon},
+    {label: 'Influencers', href: '/dashboard/brand/influencers', icon: BringToFrontIcon},
+    {label: 'Active Campaigns', href: '/dashboard/brand/approved-influencers', icon: BringToFrontIcon},
+
+    // { label: 'Ratings', href: '/dashboard/brand/ratings', icon: StarIcon },
     { label: 'Settings', href: '/dashboard/brand/settings', icon: CogIcon },
   ];
 

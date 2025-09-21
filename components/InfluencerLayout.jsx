@@ -19,10 +19,10 @@ export default function InfluencerLayout({ children }) {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard/influencer', icon: HomeIcon },
     { label: 'Campaigns', href: '/dashboard/influencer/campaigns', icon: BriefcaseIcon },
+    {label: 'Applications', href: '/dashboard/influencer/applications', icon:BriefcaseIcon},
     { label: 'Notifications', href: '/dashboard/influencer/notifications', icon: BellIcon },
-    { label: 'Last Collab', href: '/dashboard/influencer/last-collab', icon: HeartIcon },
+    // { label: 'Last Collab', href: '/dashboard/influencer/last-collab', icon: HeartIcon },
     { label: 'Settings', href: '/dashboard/influencer/settings', icon: CogIcon },
   ];
 

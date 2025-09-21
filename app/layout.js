@@ -1,13 +1,11 @@
-import { Limelight } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import AuthWrapper from '@/components/AuthWrapper';
 
-
-
-const limelight = Limelight({
-  weight: "400", // <-- Specify the weight explicitly
-  variable: "--font-limelight",
+const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
+  variable: "--font-nunito-sans",
+  display: "swap", // ensures smooth loading
 });
 
 export const metadata = {
@@ -18,10 +16,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${limelight.variable} antialiased`}
-      >
-          <AuthWrapper>
+      <body className={`${nunitoSans.variable} antialiased`}>
+        <AuthWrapper>
           {children}
         </AuthWrapper>
       </body>
