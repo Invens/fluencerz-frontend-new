@@ -69,6 +69,8 @@ export default function CampaignDetailPage() {
     fetchCampaign();
   }, [id]);
 
+  console.log(campaign);
+
   if (!campaign) {
     return (
       <BrandLayout>
