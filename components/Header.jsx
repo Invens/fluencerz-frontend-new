@@ -46,7 +46,7 @@ export default function Header() {
             setUserInfo({ name: '', image: '' });
           } else {
             // Log other errors but don't clear localStorage
-            console.error('Failed to fetch user info:', err.message);
+            // console.error('Failed to fetch user info:', err.message);
           }
         }
       }
