@@ -122,8 +122,8 @@ export default function InfluencerDetailPage() {
                     <div>
                         <h1 className="text-3xl font-bold">{influencer.full_name}</h1>
                         <p className="text-lg">{influencer.niche}</p>
-                        {influencer.email && <p className="text-sm opacity-80">{influencer.email}</p>}
-                        {influencer.phone && <p className="text-sm opacity-80">{influencer.phone}</p>}
+                        {/* {influencer.email && <p className="text-sm opacity-80">{influencer.email}</p>} */}
+                        {/* {influencer.phone && <p className="text-sm opacity-80">{influencer.phone}</p>} */}
                         {influencer.website && (
                             <a href={influencer.website} target="_blank" className="underline text-sm">
                                 {influencer.website}
