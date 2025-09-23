@@ -1,20 +1,27 @@
-// utils/api.js
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'https://api.fluencerz.com/api',
+  baseURL:
+    process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.fluencerz.com/api",
 });
 
-// Automatically attach token from localStorage to every request
-api.interceptors.request.use(
-  (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export async function getApplications() {
+  const res = await api.get("/brand/applications/forwarded");
+  return res.data.data || [];
+}
+
+export async function postDecision(id, decision) {
+  const res = await api.post(`/brand/applications/${id}/decision`, {
+    decision,
+  });
+  return res.data;
+}
 
 export default api;

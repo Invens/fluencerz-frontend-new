@@ -58,7 +58,7 @@ export default function BrandLayout({ children }) {
         href={href}
         className={`flex items-center text-foreground gap-2 rounded-md px-3 py-2 text-sm ${
           active
-            ? "bg-primary/10 text-primary font-semibold bg-accent"
+            ? "bg-primary/10 text-primary font-semibold "
             : " hover:bg-muted"
         }`}
         aria-current={active ? "page" : undefined}
@@ -123,10 +123,10 @@ export default function BrandLayout({ children }) {
             <Link href="/" className="md:hidden font-semibold text-foreground">
               <Image
                 alt="toggle-logo"
-                className="w-42"
-                src={
-                  theme == "dark" ? "/fluencerz.webp" : "/fluencerz-black.png"
-                }
+                className="w-42 h-12"
+                src={`${
+                  theme == "dark" ? "/fluencerz.png" : "/fluencerz-dark.png"
+                }`}
                 height={100}
                 width={100}
               />

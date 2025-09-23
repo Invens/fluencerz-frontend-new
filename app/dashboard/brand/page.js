@@ -299,7 +299,7 @@ export default function BrandDashboard() {
                   <Line
                     type="monotone"
                     dataKey="reach"
-                    stroke="red"
+                    stroke="blue"
                     strokeWidth={2}
                     name="Reach"
                   />
