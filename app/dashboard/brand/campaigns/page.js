@@ -256,94 +256,68 @@ export default function BrandCampaignsPage() {
                         </TableRow>
 
                         {isOpen && (
-                          <TableRow
-                            className="bg-background/60"
-                            aria-live="polite"
-                          >
+                          <TableRow className="bg-background/60" aria-live="polite">
                             <TableCell colSpan={columnsCount} className="p-0">
                               <div
                                 id={`campaign-details-${c.id}`}
                                 className="grid gap-6 p-4 md:grid-cols-3"
                               >
                                 {/* About Panel */}
-                                <div className="md:col-span-2 space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                    <h3 className="text-sm font-semibold">
-                                      About this campaign
-                                    </h3>
+                                <div className="md:col-span-2 space-y-4">
+                                  {/* Feature Image */}
+                                  <div className="w-full">
+                                    <img
+                                      src={
+                                        c.feature_image
+                                          ? `https://api.fluencerz.com${c.feature_image}`
+                                          : "https://via.placeholder.com/600x300?text=No+Image"
+                                      }
+                                      alt={c.title}
+                                      className="w-full h-48 object-cover rounded-md border"
+                                    />
                                   </div>
+
+                                  {/* Title & Status */}
+                                  <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">{c.title}</h3>
+                                    <Badge className={statusBadge(c.status)}>{c.status}</Badge>
+                                  </div>
+
+                                  {/* Meta Fields */}
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <Detail label="Name" value={c.title} />
+                                    <Detail label="Objective" value={c.objective} />
+                                    <Detail label="Type" value={c.content_type} />
+                                    <Detail label="Platform" value={c.platform} />
                                     <Detail
-                                      label="Objective"
-                                      value={c.objective}
+                                      label="Created At"
+                                      value={new Date(c.created_at).toLocaleString()}
                                     />
-                                    <Detail
-                                      label="Type"
-                                      value={c.content_type}
-                                    />
-                                    {/* <Detail
-                                      label="Budget"
-                                      value={formatBudget(c.budget)}
-                                      icon={
-                                        <BadgeDollarSign className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                                      }
-                                    /> */}
-                                    {/* <Detail
-                                      label="Duration"
-                                      value={c.duration}
-                                      icon={
-                                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                                      }
-                                    /> */}
-                                    {/* <Detail
-                                      label="Audience"
-                                      value={c.target_audience}
-                                      icon={
-                                        <Flag className="h-3.5 w-3.5 text-muted-foreground" />
-                                      }
-                                    /> */}
-                                    <Detail
-                                      label="Platform"
-                                      value={c.platform}
-                                      icon={
-                                        <Flag className="h-3.5 w-3.5 text-muted-foreground" />
-                                      }
-                                    />
-                                    <Detail
-                                      label="Media Link"
-                                      value={c.media_kit_link}
-                                      icon={
-                                        <Flag className="h-3.5 w-3.5 text-muted-foreground" />
-                                      }
-                                    />
-                                    <Detail
-                                      label="Breif Link"
-                                      value={c.brief_link}
-                                      icon={
-                                        <Flag className="h-3.5 w-3.5 text-muted-foreground" />
-                                      }
-                                    />
+                                    <Detail label="Media Kit" value={c.media_kit_link} />
+                                    <Detail label="Brief Link" value={c.brief_link} />
                                   </div>
-                                  <DetailBlock
-                                    title="Description"
-                                    value={c.description}
-                                  />
+
+                                  {/* Description */}
+                                  <DetailBlock title="Description" value={c.description} />
+
+                                  {/* Requirements / Guidelines */}
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <DetailBlock
                                       title="Guidelines Do's"
-                                      value={c.guidelines_do}
+                                      value={JSON.parse(c.guidelines_do || "[]").join(", ")}
                                     />
                                     <DetailBlock
-                                      title="Guidelines Dont's"
-                                      value={c.guidelines_donot}
-                                    />
-                                    <DetailBlock
-                                      title="Requirements"
-                                      value={c.campaign_requirements}
+                                      title="Guidelines Don'ts"
+                                      value={JSON.parse(c.guidelines_donot || "[]").join(", ")}
                                     />
                                   </div>
+                                  <DetailBlock
+                                    title="Requirements"
+                                    value={JSON.parse(c.campaign_requirements || "[]").join(", ")}
+                                  />
+                                  <DetailBlock
+                                    title="Eligibility Criteria"
+                                    value={JSON.parse(c.eligibility_criteria || "[]").join(", ")}
+                                  />
                                 </div>
 
                                 {/* Influencers Panel */}
@@ -351,18 +325,16 @@ export default function BrandCampaignsPage() {
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                       <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                      <h3 className="text-sm font-semibold">
-                                        Influencers
-                                      </h3>
+                                      <h3 className="text-sm font-semibold">Influencers</h3>
                                     </div>
                                     <Badge variant="secondary">
-                                      {c.CampaignApplications?.length || 0}{" "}
-                                      apporved
+                                      {c.CampaignApplications?.filter((a) => a.status === "approved")
+                                        ?.length || 0}{" "}
+                                      approved
                                     </Badge>
                                   </div>
                                   <div className="max-h-64 overflow-auto rounded-md border">
-                                    {(c.CampaignApplications ?? []).length ===
-                                    0 ? (
+                                    {(c.CampaignApplications ?? []).length === 0 ? (
                                       <div className="p-4 text-xs text-muted-foreground">
                                         No influencers added for this campaign.
                                       </div>
@@ -376,12 +348,12 @@ export default function BrandCampaignsPage() {
                                             <div className="flex items-center gap-3">
                                               <Avatar className="h-8 w-8">
                                                 <AvatarImage
-                                                  alt={inf.Influencer.full_name}
                                                   src={
-                                                    inf.Influencer
-                                                      .profile_image ||
-                                                    "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+                                                    inf.Influencer.profile_image
+                                                      ? `https://api.fluencerz.com${inf.Influencer.profile_image}`
+                                                      : "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                                                   }
+                                                  alt={inf.Influencer.full_name}
                                                 />
                                                 <AvatarFallback>
                                                   {inf.Influencer.full_name
@@ -391,19 +363,12 @@ export default function BrandCampaignsPage() {
                                               </Avatar>
                                               <div className="text-sm font-medium">
                                                 {inf.Influencer.full_name}
+                                                <div className="text-xs text-muted-foreground">
+                                                  {inf.Influencer.followers_count.toLocaleString()}{" "}
+                                                  followers — {inf.Influencer.engagement_rate}% ER
+                                                </div>
                                               </div>
                                             </div>
-                                            {/* <Button
-                                              size="sm"
-                                              variant="outline"
-                                              asChild
-                                            >
-                                              <Link
-                                                href={`/brand/influencers?username=${inf.Influencer.full_name}`}
-                                              >
-                                                View profile
-                                              </Link>
-                                            </Button> */}
                                           </li>
                                         ))}
                                       </ul>
@@ -414,6 +379,7 @@ export default function BrandCampaignsPage() {
                             </TableCell>
                           </TableRow>
                         )}
+
                       </>
                     );
                   })}
