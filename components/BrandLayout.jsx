@@ -56,10 +56,10 @@ export default function BrandLayout({ children }) {
     return (
       <Link
         href={href}
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+        className={`flex items-center text-foreground gap-2 rounded-md px-3 py-2 text-sm ${
           active
-            ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            ? "bg-primary/10 text-primary font-semibold bg-accent"
+            : " hover:bg-muted"
         }`}
         aria-current={active ? "page" : undefined}
       >

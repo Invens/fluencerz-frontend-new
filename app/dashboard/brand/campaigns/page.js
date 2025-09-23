@@ -136,23 +136,23 @@ export default function BrandCampaignsPage() {
   return (
     <BrandLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-balance">Campaigns</h1>
-          <Link href="/dashboard/brand/campaigns/create">
-            <Button>Create Campaign</Button>
-          </Link>
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="animate-spin h-12 w-12 rounded-full border-t-4 border-primary" />
+          </div>
+        ) : campaigns?.length == 0 ? (
+          <div className="text-sm text-muted-foreground">
+            No campaigns yet. Click “Create Campaign” to add your first one.
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold text-balance">Campaigns</h1>
+              <Link href="/dashboard/brand/campaigns/create">
+                <Button>Create Campaign</Button>
+              </Link>
+            </div>
 
-        <div>
-          {loading ? (
-            <div className="flex items-center justify-center p-6">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></div>
-            </div>
-          ) : campaigns?.length == 0 ? (
-            <div className="text-sm text-muted-foreground">
-              No campaigns yet. Click “Create Campaign” to add your first one.
-            </div>
-          ) : (
             <div className="rounded-lg border overflow-x-auto">
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
@@ -246,9 +246,8 @@ export default function BrandCampaignsPage() {
                               href={`/dashboard/brand/campaigns/${c.brand_id}/edit`}
                             >
                               <Button
-                                variant="outline"
                                 size="sm"
-                                className="cursor-pointer"
+                                className="cursor-pointer bg-secondary"
                               >
                                 Edit Campaign
                               </Button>
@@ -421,8 +420,8 @@ export default function BrandCampaignsPage() {
                 </TableBody>
               </Table>
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </BrandLayout>
   );

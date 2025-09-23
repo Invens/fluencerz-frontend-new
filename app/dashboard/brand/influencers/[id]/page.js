@@ -1,358 +1,374 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import BrandLayout from '@/components/BrandLayout';
-import api from '@/utils/api';
+"use client";
+
+import { useState, useEffect } from "react";
+import { notFound, useParams } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-    PieChart, Pie, Cell,
-    BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
-} from 'recharts';
-
-// ---------- Helpers ----------
-function safeParse(str, fallback) {
-    try {
-        return typeof str === 'string' ? JSON.parse(str) : str;
-    } catch {
-        return fallback;
-    }
-}
-
-function Avatar({ name, image }) {
-    if (image) {
-        return (
-            <img
-                src={`https://api.fluencerz.com${image}`}
-                alt={name}
-                className="w-28 h-28 rounded-full object-cover border-4 border-white shadow"
-            />
-        );
-    }
-    return (
-        <div className="w-28 h-28 rounded-full flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-3xl font-bold border-4 border-white shadow">
-            {name?.charAt(0).toUpperCase()}
-        </div>
-    );
-}
-
-function StatCard({ label, value }) {
-    return (
-        <div className="bg-white p-4 rounded-lg text-center shadow hover:shadow-md transition">
-            <p className="text-gray-600 text-sm">{label}</p>
-            <p className="text-xl font-bold">{value ?? '—'}</p>
-        </div>
-    );
-}
-
-function Section({ title, children }) {
-    return (
-        <div className="bg-white p-5 rounded-lg shadow space-y-2">
-            <h3 className="font-semibold text-lg">{title}</h3>
-            {children}
-        </div>
-    );
-}
-
-// Chart colors
-const COLORS = ['#4f46e5', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
+  Users,
+  TrendingUp,
+  Eye,
+  Mail,
+  Phone,
+  Calendar,
+  Instagram,
+  Facebook,
+  Twitter,
+  Loader2,
+  ExternalLink,
+} from "lucide-react";
+import {
+  formatNumber,
+  formatPercentage,
+  parseJsonSafely,
+} from "@/lib/formatters";
+import api from "@/utils/api";
+import { PlatformBadge } from "@/components/platform-badge";
+import { MetricCard } from "@/components/metric-card";
+import { AudienceChart } from "@/components/audience-chart";
+import BrandLayout from "@/components/BrandLayout";
 
 export default function InfluencerDetailPage() {
-    const { id } = useParams();
-    const [influencer, setInfluencer] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('Overview');
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const { id } = useParams();
+  const [influencer, setInfluencer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const res = await api.get(`/brand/influencers/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setInfluencer(res.data.data);
-            } catch (err) {
-                console.error('❌ Error:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
-    }, [id]);
+  useEffect(() => {
+    const fetchInfluencer = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const res = await api.get(`/brand/influencers/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setInfluencer(res.data.data);
+      } catch (err) {
+        console.error("Error fetching influencer:", err);
+        setError("Failed to load influencer data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (loading) {
-        return (
-            <BrandLayout>
-                <div className="flex justify-center items-center min-h-[60vh]">
-                    <div className="animate-spin h-10 w-10 rounded-full border-t-4 border-indigo-600" />
-                </div>
-            </BrandLayout>
-        );
-    }
+    fetchInfluencer();
+  }, [id]);
 
-    if (!influencer) {
-        return (
-            <BrandLayout>
-                <div className="text-center py-10 text-gray-500">Influencer not found</div>
-            </BrandLayout>
-        );
-    }
-
-    // Parse JSON fields
-    const socialPlatforms = safeParse(influencer.social_platforms, []);
-    const audienceGender = safeParse(influencer.audience_gender || "{}", {}); // ✅ always object
-    const followersByCountry = safeParse(influencer.followers_by_country || "[]", []);
-    const instagramAccount = influencer.instagramAccount || {};
-    const dayInsights = safeParse(instagramAccount.account_insights_day || "{}", {});
-    const monthInsights = safeParse(instagramAccount.account_insights_30_days || "{}", {});
-    const mediaWithInsights = safeParse(instagramAccount.media_with_insights || "[]", []);
-
-
-    // Prepare chart data
-    const genderData = Object.entries(audienceGender).map(([k, v]) => ({ name: k, value: v }));
-    const countryData = followersByCountry.map((c) => ({ name: c.country, value: c.percentage }));
-
-    // ---------- Tabs ----------
-    const tabs = ['Overview', 'Audience', 'Instagram Stats', 'Media'];
-
+  if (loading) {
     return (
-        <BrandLayout>
-            <div className="max-w-6xl mx-auto py-10 px-4 space-y-10">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-center gap-6 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] rounded-xl p-8 shadow text-white">
-                    <Avatar name={influencer.full_name} image={influencer.profile_image} />
-                    <div>
-                        <h1 className="text-3xl font-bold">{influencer.full_name}</h1>
-                        <p className="text-lg">{influencer.niche}</p>
-                        {/* {influencer.email && <p className="text-sm opacity-80">{influencer.email}</p>} */}
-                        {/* {influencer.phone && <p className="text-sm opacity-80">{influencer.phone}</p>} */}
-                        {influencer.website && (
-                            <a href={influencer.website} target="_blank" className="underline text-sm">
-                                {influencer.website}
-                            </a>
-                        )}
-                    </div>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex space-x-4 border-b pb-2">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 text-sm font-medium rounded-t-lg ${activeTab === tab
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Tab Content */}
-                <div>
-                    {activeTab === 'Overview' && (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <StatCard label="Followers" value={influencer.followers_count?.toLocaleString()} />
-                                <StatCard label="Engagement Rate" value={influencer.engagement_rate ? `${influencer.engagement_rate}%` : '—'} />
-                                <StatCard label="Total Reach" value={influencer.total_reach?.toLocaleString()} />
-                                <StatCard label="Availability" value={influencer.availability} />
-                            </div>
-                            {socialPlatforms.length > 0 && (
-                                <Section title="🌐 Social Platforms">
-                                    <ul className="space-y-1 text-sm">
-                                        {socialPlatforms.map((sp, i) => (
-                                            <li key={i} className="flex justify-between">
-                                                <span>{sp.platform}</span>
-                                                <span>{sp.followers}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </Section>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'Audience' && (
-                        <div className="space-y-6">
-                            <Section title="👥 Audience Gender">
-                                {genderData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={250}>
-                                        <PieChart>
-                                            <Pie data={genderData} dataKey="value" nameKey="name" outerRadius={100} label>
-                                                {genderData.map((_, index) => (
-                                                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <p>No data available</p>
-                                )}
-                            </Section>
-                            <Section title="🌍 Followers by Country">
-                                {countryData.length > 0 ? (
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={countryData}>
-                                            <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Bar dataKey="value" fill="#4f46e5" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                ) : (
-                                    <p>No data available</p>
-                                )}
-                            </Section>
-                            {influencer.audience_age_group && (
-                                <Section title="📈 Audience Age Group">
-                                    <p>{influencer.audience_age_group}</p>
-                                </Section>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'Instagram Stats' && (
-                        <div className="space-y-6">
-                            <Section title="📱 Instagram Account Stats">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <StatCard label="Avg Reach" value={instagramAccount.avg_reach} />
-                                    <StatCard label="Avg Views" value={instagramAccount.avg_views} />
-                                    <StatCard label="Avg Likes" value={instagramAccount.avg_likes} />
-                                    <StatCard label="Avg Comments" value={instagramAccount.avg_comments} />
-                                    <StatCard label="Total Engagements" value={instagramAccount.total_engagements} />
-                                </div>
-                            </Section>
-                            {/* Last Day Insights */}
-                            <Section title="📊 Account Insights (Last Day)">
-                                {Object.entries(dayInsights).map(([metric, obj]) => (
-                                    obj?.data?.length > 0 && (
-                                        <div key={metric} className="mb-4">
-                                            <p className="font-medium capitalize">{metric.replace(/_/g, ' ')}:</p>
-                                            <ul className="space-y-1 text-sm">
-                                                {obj.data.flatMap((d, i) =>
-                                                    d.values?.map((val, j) => (
-                                                        <li key={`${i}-${j}`} className="flex justify-between">
-                                                            <span>{d.name || metric}</span>
-                                                            <span>{val.value} {val.end_time && `(till ${new Date(val.end_time).toLocaleDateString()})`}</span>
-                                                        </li>
-                                                    ))
-                                                )}
-                                            </ul>
-                                        </div>
-                                    )
-                                ))}
-                            </Section>
-
-                            {/* Last 30 Days Insights */}
-                            <Section title="📊 Account Insights (Last 30 Days)">
-                                {Object.entries(monthInsights).map(([metric, obj]) => (
-                                    obj?.data?.length > 0 && (
-                                        <div key={metric} className="mb-4">
-                                            <p className="font-medium capitalize">{metric.replace(/_/g, ' ')}:</p>
-                                            <ul className="space-y-1 text-sm">
-                                                {obj.data.flatMap((d, i) =>
-                                                    d.values?.map((val, j) => (
-                                                        <li key={`${i}-${j}`} className="flex justify-between">
-                                                            <span>{d.name || metric}</span>
-                                                            <span>{val.value} {val.end_time && `(till ${new Date(val.end_time).toLocaleDateString()})`}</span>
-                                                        </li>
-                                                    ))
-                                                )}
-                                            </ul>
-                                        </div>
-                                    )
-                                ))}
-                            </Section>
-
-
-                        </div>
-                    )}
-
-                    {activeTab === 'Media' && (
-                        <div className="space-y-6">
-                            <Section title="🖼 Media With Insights">
-                                {mediaWithInsights.length === 0 ? (
-                                    <p className="text-gray-500 text-sm">No media insights available.</p>
-                                ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {mediaWithInsights.map((media) => (
-                                            <div
-                                                key={media.id}
-                                                className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition overflow-hidden border border-gray-100 dark:border-gray-700"
-                                            >
-                                                {/* Media Preview */}
-                                                <a href={media.permalink} target="_blank" rel="noopener noreferrer">
-                                                    {media.media_type === 'IMAGE' && (
-                                                        <img
-                                                            src={media.media_url}
-                                                            alt={media.caption}
-                                                            className="w-full h-48 object-cover hover:opacity-90 transition"
-                                                        />
-                                                    )}
-                                                    {media.media_type === 'VIDEO' && (
-                                                        <video
-                                                            src={media.media_url}
-                                                            controls
-                                                            className="w-full h-48 object-cover"
-                                                        />
-                                                    )}
-                                                    {media.media_type === 'CAROUSEL_ALBUM' && (
-                                                        <img
-                                                            src={media.media_url}
-                                                            alt={media.caption}
-                                                            className="w-full h-48 object-cover"
-                                                        />
-                                                    )}
-                                                </a>
-
-                                                {/* Content */}
-                                                <div className="p-4 space-y-3">
-                                                    {/* Caption */}
-                                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                                                        {media.caption || 'No caption'}
-                                                    </p>
-
-                                                    {/* Metrics */}
-                                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                                        {media.insights?.data?.map((insight) => (
-                                                            <div
-                                                                key={insight.name}
-                                                                className="bg-gray-50 dark:bg-gray-700 p-2 rounded-md text-center"
-                                                            >
-                                                                <p className="text-gray-500 dark:text-gray-300 capitalize">
-                                                                    {insight.name.replace(/_/g, ' ')}
-                                                                </p>
-                                                                <p className="font-semibold text-indigo-600 dark:text-indigo-400">
-                                                                    {insight.values?.[0]?.value ?? '—'}
-                                                                </p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-
-                                                    {/* CTA */}
-                                                    <div className="pt-2">
-                                                        <a
-                                                            href={media.permalink}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-block text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-                                                        >
-                                                            🔗 View on Instagram
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </Section>
-                        </div>
-                    )}
-
-                </div>
-            </div>
-        </BrandLayout>
+      <BrandLayout>
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="animate-spin h-12 w-12 rounded-full border-t-4 border-primary" />
+        </div>
+      </BrandLayout>
     );
+  }
+
+  if (error || !influencer) {
+    return notFound();
+  }
+
+  console.log(influencer);
+
+  const socialPlatforms = parseJsonSafely(influencer.social_platforms, []);
+  const audienceGender = parseJsonSafely(influencer.audience_gender, {});
+  const followersByCountry = parseJsonSafely(
+    influencer.followers_by_country,
+    []
+  );
+
+  const genderData = [
+    {
+      name: "male",
+      value: Number.parseInt(audienceGender.male || "0"),
+      color: "#3b82f6",
+    },
+    {
+      name: "female",
+      value: Number.parseInt(audienceGender.female || "0"),
+      color: "#ec4899",
+    },
+    {
+      name: "other",
+      value: Number.parseInt(audienceGender.other || "0"),
+      color: "#8b5cf6",
+    },
+  ].filter((item) => item.value > 0);
+
+  const countryData = followersByCountry.map((item) => ({
+    country: item.country,
+    percentage: Number.parseInt(item.percentage),
+  }));
+
+  return (
+    <BrandLayout>
+      <div className="min-h-screen bg-background">
+        <div className="relative bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-border/50">
+          <div className="container mx-auto px-6 py-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                  <AvatarImage
+                    src={influencer.profile_image || "/placeholder.svg"}
+                    alt={influencer.full_name}
+                  />
+                  <AvatarFallback className="text-2xl font-bold">
+                    {influencer.full_name}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {influencer.full_name}
+                  </h1>
+                  <div className="flex items-center gap-4 text-muted-foreground">
+                    <Badge variant="secondary" className="font-medium">
+                      {influencer.niche}
+                    </Badge>
+                    <Badge
+                      variant={
+                        influencer.availability === "available"
+                          ? "default"
+                          : "secondary"
+                      }
+                      className={
+                        influencer.availability === "available"
+                          ? "bg-green-600"
+                          : ""
+                      }
+                    >
+                      {influencer.availability}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {socialPlatforms.map((platform, index) => (
+                      <PlatformBadge
+                        key={index}
+                        platform={platform.platform}
+                        followers={platform.followers}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" size="sm">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Contact
+                </Button>
+                <Button size="sm">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View Profile
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <MetricCard
+              title="Total Followers"
+              value={formatNumber(influencer.followers_count)}
+              subtitle="Across all platforms"
+              icon={<Users className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Engagement Rate"
+              value={formatPercentage(influencer.engagement_rate)}
+              subtitle="Average engagement"
+              icon={<TrendingUp className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Total Reach"
+              value={formatNumber(influencer.total_reach)}
+              subtitle="Monthly reach"
+              icon={<Eye className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Age Group"
+              value={influencer.audience_age_group}
+              subtitle="Primary audience"
+              icon={<Users className="h-5 w-5" />}
+            />
+          </div>
+
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="audience">Audience</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Platform Performance
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {socialPlatforms.map((platform, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          {platform.platform === "Instagram" && (
+                            <Instagram className="h-5 w-5 text-pink-500" />
+                          )}
+                          {platform.platform === "Facebook" && (
+                            <Facebook className="h-5 w-5 text-blue-600" />
+                          )}
+                          {platform.platform === "Twitter" && (
+                            <Twitter className="h-5 w-5 text-sky-500" />
+                          )}
+                          <span className="font-medium">
+                            {platform.platform}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold">
+                            {formatNumber(Number(platform.followers))}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            followers
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      Account Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Joined</span>
+                        <span className="font-medium">
+                          {new Date(influencer.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Last Updated
+                        </span>
+                        <span className="font-medium">
+                          {new Date(influencer.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Status</span>
+                        <Badge
+                          variant={
+                            influencer.availability === "available"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className={
+                            influencer.availability === "available"
+                              ? "bg-green-600"
+                              : ""
+                          }
+                        >
+                          {influencer.availability}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="audience" className="space-y-6">
+              <AudienceChart
+                genderData={genderData}
+                countryData={countryData}
+              />
+            </TabsContent>
+
+            <TabsContent value="contact" className="space-y-6">
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <Mail className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            Email
+                          </div>
+                          <div className="font-medium">{influencer.email}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <Phone className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            Phone
+                          </div>
+                          <div className="font-medium">{influencer.phone}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            LinkedIn/Skype
+                          </div>
+                          <div className="font-medium text-primary hover:underline">
+                            <a
+                              href={influencer.skype}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              View Profile
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="portfolio" className="space-y-6">
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle>Portfolio & Experience</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
+                      {influencer.portfolio}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </BrandLayout>
+  );
 }
