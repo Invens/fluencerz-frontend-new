@@ -243,7 +243,7 @@ export default function BrandCampaignsPage() {
                               </Button>
                             </Link> */}
                             <Link
-                              href={`/dashboard/brand/campaigns/${c.brand_id}/edit`}
+                              href={`/dashboard/brand/campaigns/${c.id}/edit`}
                             >
                               <Button
                                 size="sm"

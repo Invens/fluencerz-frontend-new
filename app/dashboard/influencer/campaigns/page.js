@@ -1,93 +1,138 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import InfluencerLayout from '@/components/InfluencerLayout';
-import api from '@/utils/api';
+"use client";
+import { useEffect, useState } from "react";
+import InfluencerLayout from "@/components/InfluencerLayout";
+import api from "@/utils/api";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  Briefcase,
+  Globe,
+  Building2,
+  ArrowRight,
+} from "lucide-react";
 
-export default function CampaignsPage() {
+const BASE_URL = "https://api.fluencerz.com";
+
+export default function InfluencerCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
-  const BASE_URL = "https://api.fluencerz.com";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await api.get('/influencer/campaigns/feed');
+        const res = await api.get("/influencer/campaigns/feed");
         setCampaigns(res.data.data || []);
       } catch (err) {
-        console.error('Failed to fetch campaigns:', err);
+        console.error("❌ Failed to fetch campaigns:", err);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchCampaigns();
   }, []);
 
   return (
     <InfluencerLayout>
-      <div className="mx-auto px-4 py-6 min-h-screen">
-        <h2 className="text-2xl font-bold mb-6">Available Campaigns</h2>
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Page Title */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Discover Campaigns
+          </h1>
+        </div>
 
-        {campaigns.length === 0 ? (
-          <p>No campaigns available at the moment.</p>
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-transparent"></div>
+          </div>
+        ) : campaigns.length === 0 ? (
+          <div className="text-sm text-muted-foreground">
+            No campaigns available right now. Check back soon!
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {campaigns.map((campaign) => (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {campaigns.map((c) => (
               <div
-                key={campaign.id}
-                className="bg-white flex flex-col rounded-xl shadow-lg border hover:shadow-2xl transition-shadow duration-300 p-0 transform hover:-translate-y-1" // Minimal 3D: subtle lift and deeper shadow on hover
-                style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)' }} // Soft 3D shadow
+                key={c.id}
+                className="group relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-md hover:shadow-xl transition-transform hover:-translate-y-1"
               >
-                {/* Brand + Title */}
-                <div className="flex items-center gap-2 px-4 pt-4">
-                  {/* <img
-                    src={campaign.Brand?.profile_image || '/placeholder_brand.jpg'}
-                    alt={campaign.Brand?.company_name || "Brand"}
-                    className="w-7 h-7 rounded-full border bg-gray-200 object-cover"
-                  /> */}
-                  <span className="text-xs font-semibold text-gray-700">{campaign.Brand?.company_name}</span>
-                </div>
-                
-                {/* Feature Image */}
-                <div className="w-full h-36 flex items-center justify-center mt-3">
+                {/* Banner / Feature Image */}
+                <div className="relative h-40 w-full overflow-hidden">
                   <img
-                    src={campaign.feature_image ? `${BASE_URL}${campaign.feature_image}` : '/placeholder_campaign.jpg'}
-                    alt={campaign.title}
-                    className="object-cover w-full h-full rounded-md"
+                    src={
+                      c.feature_image
+                        ? `${BASE_URL}${c.feature_image}`
+                        : "https://via.placeholder.com/600x300?text=No+Image"
+                    }
+                    alt={c.title}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                </div>
-                
-                {/* Title */}
-                <div className="px-4 mt-3">
-                  <div className="font-semibold text-[1rem] text-gray-900 truncate" title={campaign.title}>
-                    {campaign.title}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                  {/* Brand */}
+                  <div className="absolute bottom-2 left-3 flex items-center gap-2">
+                    <div className="bg-white/90 px-2 py-1 rounded text-xs font-medium shadow">
+                      <Building2 className="inline-block w-3 h-3 mr-1 text-gray-600" />
+                      {c.Brand?.company_name || "Unknown Brand"}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500 truncate mb-1">{campaign.description}</div>
                 </div>
-                
-                {/* Tags - Colorful */}
-                <div className="flex flex-wrap items-center px-4 gap-y-1 mt-2 min-h-[1.75rem]">
-                  <span className="inline-block px-3 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mr-2 mb-1">
-                    {campaign.content_type}
-                  </span>
-                  <span className="inline-block px-3 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800 mr-2 mb-1">
-                    {campaign.platform}
-                  </span>
-                </div>
-                
-                {/* Application Status - Colorful */}
-                <div className="px-4 mt-2 mb-0.5">
-                  <span className="inline-block rounded bg-green-100 text-green-700 text-xs px-2 py-1 font-semibold">
-                    Applications open
-                  </span>
-                </div>
-                
-                {/* View Button - Colorful Gradient */}
-                <div className="flex px-4 mt-4 mb-4">
-                  <Link
-                    href={`/dashboard/influencer/campaigns/${campaign.id}`}
-                    className="w-full inline-block font-semibold rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white py-2 text-center text-sm transition shadow-md hover:shadow-lg" // Colorful gradient + minimal 3D shadow
-                  >
-                    View campaign
-                  </Link>
+
+                {/* Content */}
+                <div className="flex flex-col flex-1 p-4 space-y-3">
+                  {/* Title & Desc */}
+                  <div>
+                    <h2 className="text-lg font-semibold line-clamp-1 group-hover:text-primary transition">
+                      {c.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {c.description}
+                    </p>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 rounded-full"
+                    >
+                      <Briefcase size={12} /> {c.content_type}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 rounded-full"
+                    >
+                      <Globe size={12} /> {c.platform}
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1 rounded-full"
+                    >
+                      <Calendar size={12} />
+                      {new Date(c.created_at).toLocaleDateString()}
+                    </Badge>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <Badge className="bg-green-100 text-green-700 font-medium rounded-full">
+                      Applications Open
+                    </Badge>
+                  </div>
+
+                  {/* Button */}
+                  <div className="mt-auto">
+                    <Button
+                      asChild
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Link href={`/dashboard/influencer/campaigns/${c.id}`}>
+                        View Campaign <ArrowRight size={14} />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
