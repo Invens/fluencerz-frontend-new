@@ -1,12 +1,10 @@
 "use client";
 
 import useSWR from "swr";
-import { useMemo, useState } from "react";
 import { postDecision, getApplications } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ApplicationCard } from "@/components/brand/application-card";
-import { InfluencerDetailsDialog } from "@/components/brand/influencer-detail-dialog";
 import BrandLayout from "@/components/BrandLayout";
 
 export default function BrandApplicationsPage() {
@@ -21,45 +19,35 @@ export default function BrandApplicationsPage() {
   const applications = data || [];
   const isLoading = !data && !error;
 
-  const [selected, setSelected] = useState(null);
-  const [open, setOpen] = useState(false);
-
   const handleDecision = async (id, decision) => {
     try {
       await postDecision(id, decision);
       await mutate();
     } catch (e) {
-      console.error("[v0] decision error:", e.message);
+      console.error("[decision error]:", e.message);
     }
-  };
-
-  const onShowDetails = (influencer) => {
-    setSelected(influencer);
-    setOpen(true);
   };
 
   return (
     <BrandLayout>
       <div className="space-y-6">
         <header className="flex items-center justify-between">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold text-foreground text-pretty">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">
               Applications
             </h1>
             <p className="text-sm text-muted-foreground">
               Review and decide on influencer applications for your campaigns.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => mutate()}
-              aria-label="Refresh applications"
-            >
-              Refresh
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => mutate()}
+            aria-label="Refresh applications"
+          >
+            Refresh
+          </Button>
         </header>
 
         {isLoading ? (
@@ -94,9 +82,7 @@ export default function BrandApplicationsPage() {
           </section>
         ) : (
           <section
-            className={cn(
-              "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            )}
+            className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4")}
           >
             {applications.map((app) => (
               <ApplicationCard
@@ -104,17 +90,10 @@ export default function BrandApplicationsPage() {
                 app={app}
                 onApprove={() => handleDecision(app.id, "brand_approved")}
                 onReject={() => handleDecision(app.id, "reject")}
-                onDetails={() => onShowDetails(app.Influencer)}
               />
             ))}
           </section>
         )}
-
-        <InfluencerDetailsDialog
-          influencer={selected}
-          open={open}
-          onOpenChange={setOpen}
-        />
       </div>
     </BrandLayout>
   );

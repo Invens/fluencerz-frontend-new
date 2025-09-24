@@ -13,7 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const BASE_URL = "https://api.fluencerz.com";
+const BASE_URL = "http://localhost:4004";
 
 export default function InfluencerCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);

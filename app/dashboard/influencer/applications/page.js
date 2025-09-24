@@ -80,7 +80,7 @@ export default function AppliedCampaignsPage() {
               {app.campaign.feature_image && (
                 <div className="relative w-full h-40">
                   <img
-                    src={`https://api.fluencerz.com${app.campaign.feature_image}`}
+                    src={`http://localhost:4004${app.campaign.feature_image}`}
                     alt={app.campaign.title}
                     className="w-full h-full object-cover rounded-t-xl"
                   />
@@ -94,7 +94,7 @@ export default function AppliedCampaignsPage() {
                 <div className="flex items-center gap-2 mb-3">
                   {app.Brand?.profile_picture && (
                     <img
-                      src={`https://api.fluencerz.com${app.Brand.profile_picture}`}
+                      src={`http://localhost:4004${app.Brand.profile_picture}`}
                       alt={app.Brand.company_name}
                       className="w-8 h-8 rounded-full object-cover border"
                     />

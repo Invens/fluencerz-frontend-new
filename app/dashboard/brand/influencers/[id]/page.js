@@ -17,7 +17,6 @@ import {
   Instagram,
   Facebook,
   Twitter,
-  Loader2,
   ExternalLink,
 } from "lucide-react";
 import {
@@ -71,14 +70,10 @@ export default function InfluencerDetailPage() {
     return notFound();
   }
 
-  console.log(influencer);
-
+  // Parse influencer fields
   const socialPlatforms = parseJsonSafely(influencer.social_platforms, []);
   const audienceGender = parseJsonSafely(influencer.audience_gender, {});
-  const followersByCountry = parseJsonSafely(
-    influencer.followers_by_country,
-    []
-  );
+  const followersByCountry = parseJsonSafely(influencer.followers_by_country, []);
 
   const genderData = [
     {
@@ -103,20 +98,38 @@ export default function InfluencerDetailPage() {
     percentage: Number.parseInt(item.percentage),
   }));
 
+  // Instagram account & insights
+  const instagramAccount = influencer.instagramAccount || null;
+  const mediaInsights = instagramAccount
+    ? JSON.parse(instagramAccount.media_with_insights || "[]")
+    : [];
+  const insights1d = instagramAccount
+    ? JSON.parse(instagramAccount.insights_1d || "{}")
+    : {};
+  const insights30d = instagramAccount
+    ? JSON.parse(instagramAccount.insights_30d || "{}")
+    : {};
+
   return (
     <BrandLayout>
       <div className="min-h-screen bg-background">
+        {/* Header */}
         <div className="relative bg-gradient-to-r from-primary/10 via-primary/5 to-background border-b border-border/50">
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex items-center gap-6">
                 <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
                   <AvatarImage
-                    src={influencer.profile_image || "/placeholder.svg"}
+                    src={
+                      influencer.profile_image
+                        ? `http://localhost:4004${influencer.profile_image}`
+                        : "/placeholder.svg"
+                    }
                     alt={influencer.full_name}
                   />
+
                   <AvatarFallback className="text-2xl font-bold">
-                    {influencer.full_name}
+                    {influencer.full_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
@@ -167,6 +180,7 @@ export default function InfluencerDetailPage() {
           </div>
         </div>
 
+        {/* Metrics */}
         <div className="container mx-auto px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <MetricCard
@@ -195,17 +209,20 @@ export default function InfluencerDetailPage() {
             />
           </div>
 
+          {/* Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
+            <TabsList className="grid w-full grid-cols-5 lg:w-[500px]">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="audience">Audience</TabsTrigger>
               <TabsTrigger value="contact">Contact</TabsTrigger>
               <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+              <TabsTrigger value="instagram">Instagram</TabsTrigger>
             </TabsList>
 
+            {/* Overview */}
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5" />
@@ -245,106 +262,91 @@ export default function InfluencerDetailPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
                       Account Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Joined</span>
-                        <span className="font-medium">
-                          {new Date(influencer.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Last Updated
-                        </span>
-                        <span className="font-medium">
-                          {new Date(influencer.updated_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status</span>
-                        <Badge
-                          variant={
-                            influencer.availability === "available"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className={
-                            influencer.availability === "available"
-                              ? "bg-green-600"
-                              : ""
-                          }
-                        >
-                          {influencer.availability}
-                        </Badge>
-                      </div>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Joined</span>
+                      <span className="font-medium">
+                        {new Date(influencer.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Last Updated</span>
+                      <span className="font-medium">
+                        {new Date(influencer.updated_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Status</span>
+                      <Badge
+                        variant={
+                          influencer.availability === "available"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className={
+                          influencer.availability === "available"
+                            ? "bg-green-600"
+                            : ""
+                        }
+                      >
+                        {influencer.availability}
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
 
-            <TabsContent value="audience" className="space-y-6">
-              <AudienceChart
-                genderData={genderData}
-                countryData={countryData}
-              />
+            {/* Audience */}
+            <TabsContent value="audience">
+              <AudienceChart genderData={genderData} countryData={countryData} />
             </TabsContent>
 
-            <TabsContent value="contact" className="space-y-6">
-              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            {/* Contact */}
+            <TabsContent value="contact">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Mail className="h-5 w-5" />
-                    Contact Information
-                  </CardTitle>
+                  <CardTitle>Contact Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            Email
-                          </div>
-                          <div className="font-medium">{influencer.email}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            Phone
-                          </div>
-                          <div className="font-medium">{influencer.phone}</div>
-                        </div>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <Mail className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Email</div>
+                        <div className="font-medium">{influencer.email}</div>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <ExternalLink className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            LinkedIn/Skype
-                          </div>
-                          <div className="font-medium text-primary hover:underline">
-                            <a
-                              href={influencer.skype}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Profile
-                            </a>
-                          </div>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <Phone className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Phone</div>
+                        <div className="font-medium">{influencer.phone}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <ExternalLink className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          LinkedIn/Skype
                         </div>
+                        <a
+                          href={influencer.skype}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary hover:underline"
+                        >
+                          View Profile
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -352,19 +354,152 @@ export default function InfluencerDetailPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="portfolio" className="space-y-6">
-              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            {/* Portfolio */}
+            <TabsContent value="portfolio">
+              <Card>
                 <CardHeader>
                   <CardTitle>Portfolio & Experience</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
-                      {influencer.portfolio}
-                    </p>
-                  </div>
+                  <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
+                    {influencer.portfolio || "No portfolio provided."}
+                  </p>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Instagram */}
+            <TabsContent value="instagram" className="space-y-6">
+              {!instagramAccount ? (
+                <Card>
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    This creator has not connected their Instagram account.
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  {/* Account Overview */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Instagram Account</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p><strong>Username:</strong> @{instagramAccount.username}</p>
+                        <p><strong>Followers:</strong> {formatNumber(instagramAccount.followers_count)}</p>
+                        <p><strong>Engagement Rate:</strong> {formatPercentage(instagramAccount.total_engagements)}</p>
+                      </div>
+                      <div>
+                        <p><strong>Avg Likes:</strong> {formatNumber(instagramAccount.avg_likes)}</p>
+                        <p><strong>Avg Comments:</strong> {formatNumber(instagramAccount.avg_comments)}</p>
+                        <p><strong>Avg Reach:</strong> {formatNumber(instagramAccount.avg_reach)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 1 Day Insights */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>1 Day Insights</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {["impressions", "reach", "profile_views"].map((metric) => (
+                        <div key={metric} className="p-3 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground capitalize">{metric}</p>
+                          <p className="font-bold">{formatNumber(insights1d[metric] || 0)}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  {/* 30 Day Insights */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>30 Day Insights</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {["impressions", "reach", "profile_views"].map((metric) => (
+                        <div key={metric} className="p-3 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground capitalize">{metric}</p>
+                          <p className="font-bold">{formatNumber(insights30d[metric] || 0)}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  {/* Media Insights */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Media Insights</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {mediaInsights.length === 0 ? (
+                        <p className="text-muted-foreground">No media insights available.</p>
+                      ) : (
+                        mediaInsights.map((media, idx) => {
+                          const getMetric = (name) =>
+                            media.insights?.data?.find((d) => d.name === name)?.values?.[0]?.value || 0;
+
+                          const reach = getMetric("reach");
+                          const likes = getMetric("likes");
+                          const comments = getMetric("comments");
+                          const shares = getMetric("shares");
+                          const saves = getMetric("saved");
+                          const views = getMetric("views");
+
+                          const engagementRate = instagramAccount.followers_count
+                            ? ((likes + comments + shares + saves) / instagramAccount.followers_count) * 100
+                            : 0;
+
+                          return (
+                            <div key={idx} className="rounded-lg border bg-card overflow-hidden shadow">
+                              {media.media_type === "IMAGE" && (
+                                <img src={media.media_url} alt={media.caption} className="w-full h-48 object-cover" />
+                              )}
+                              {media.media_type === "VIDEO" && (
+                                <video controls className="w-full h-48 object-cover">
+                                  <source src={media.media_url} type="video/mp4" />
+                                </video>
+                              )}
+                              {media.media_type === "CAROUSEL_ALBUM" && (
+                                <img src={media.media_url} alt={media.caption} className="w-full h-48 object-cover" />
+                              )}
+
+                              <div className="p-4 space-y-2">
+                                <a
+                                  href={media.permalink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-medium text-primary hover:underline"
+                                >
+                                  View on Instagram
+                                </a>
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {media.caption || "No caption"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(media.timestamp).toLocaleDateString()}
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <span>Reach: {reach}</span>
+                                  <span>Likes: {likes}</span>
+                                  <span>Comments: {comments}</span>
+                                  <span>Shares: {shares}</span>
+                                  <span>Saves: {saves}</span>
+                                  <span>Views: {views}</span>
+                                  <span className="col-span-2 font-medium text-primary">
+                                    Engagement Rate: {engagementRate.toFixed(2)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </CardContent>
+                  </Card>
+                </>
+              )}
             </TabsContent>
           </Tabs>
         </div>

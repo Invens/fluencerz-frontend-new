@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import BrandLayout from "@/components/BrandLayout";
 import api from "@/utils/api";
 
-const API_BASE_URL = "https://api.fluencerz.com";
+const API_BASE_URL = "http://localhost:4004";
 
 // Helper to safely parse JSON
 function parseJSON(value) {

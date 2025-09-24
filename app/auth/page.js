@@ -32,7 +32,7 @@ export default function AuthPage({ initialHash = '#brandLogin' }) {
   const [availability, setAvailability] = useState('available');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const API_BASE = 'https://api.fluencerz.com/api';
+  const API_BASE = 'http://localhost:4004/api';
 
   const categories = [
     'Art', 'Beauty', 'Business', 'Comedy', 'Dance', 'Education', 'Entertainment',

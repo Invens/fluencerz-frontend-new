@@ -33,7 +33,7 @@ export default function CampaignDetailPage() {
   const [applied, setApplied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const BASE_URL = "https://api.fluencerz.com";
+  const BASE_URL = "http://localhost:4004";
 
   useEffect(() => {
     const fetchCampaign = async () => {

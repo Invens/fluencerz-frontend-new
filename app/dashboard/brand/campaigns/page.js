@@ -27,7 +27,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const API_BASE_URL = "https://api.fluencerz.com";
+const API_BASE_URL = "http://localhost:4004";
 
 export default function BrandCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -269,7 +269,7 @@ export default function BrandCampaignsPage() {
                                     <img
                                       src={
                                         c.feature_image
-                                          ? `https://api.fluencerz.com${c.feature_image}`
+                                          ? `http://localhost:4004${c.feature_image}`
                                           : "https://via.placeholder.com/600x300?text=No+Image"
                                       }
                                       alt={c.title}
@@ -350,7 +350,7 @@ export default function BrandCampaignsPage() {
                                                 <AvatarImage
                                                   src={
                                                     inf.Influencer.profile_image
-                                                      ? `https://api.fluencerz.com${inf.Influencer.profile_image}`
+                                                      ? `http://localhost:4004${inf.Influencer.profile_image}`
                                                       : "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
                                                   }
                                                   alt={inf.Influencer.full_name}

@@ -177,7 +177,7 @@ export default function Settings() {
                         imageFile
                           ? URL.createObjectURL(imageFile)
                           : profile.profile_image
-                          ? `https://api.fluencerz.com${profile.profile_image}`
+                          ? `http://localhost:4004${profile.profile_image}`
                           : undefined
                       }
                       alt="Brand Avatar"

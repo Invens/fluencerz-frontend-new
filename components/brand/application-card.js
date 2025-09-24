@@ -5,6 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+
+const API_HOST = "http://localhost:4004";
 
 function getRequester(app) {
   const candidate =
@@ -36,36 +39,30 @@ function getRequester(app) {
   return null;
 }
 
-export function ApplicationCard({
-  app,
-  onApprove,
-  onReject,
-  onDetails,
-  className,
-}) {
-  const influencerName = app.Influencer?.full_name || "Unknown Influencer";
-  const avatarSrc =
-    app.Influencer?.profile_picture_url ||
-    app.Influencer?.profile_image ||
-    undefined;
-  const campaignTitle = app.Campaign?.title || "Untitled Campaign";
+export function ApplicationCard({ app, onApprove, onReject, className }) {
+  const influencer = app.Influencer || {};
+  const influencerName = influencer.full_name || "Unknown Influencer";
 
+  // Always resolve image from your API host
+  const avatarSrc = influencer.profile_image
+    ? `${API_HOST}${influencer.profile_image}`
+    : influencer.profile_picture_url || "/placeholder.svg";
+
+  const campaignTitle = app.Campaign?.title || "Untitled Campaign";
   const requester = getRequester(app);
 
   return (
-    <Card className={cn("hover:shadow-md transition-shadow", className)}>
+    <Card className={cn("hover:shadow-lg transition-shadow", className)}>
+      {/* Header */}
       <CardHeader className="flex flex-row items-center gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarImage
-            src={avatarSrc || "/placeholder.svg"}
-            alt={influencerName}
-          />
+        <Avatar className="h-12 w-12 border">
+          <AvatarImage src={avatarSrc} alt={influencerName} />
           <AvatarFallback aria-hidden>
             {influencerName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <CardTitle className="text-base text-foreground text-pretty truncate">
+          <CardTitle className="text-base font-semibold text-foreground truncate">
             {influencerName}
           </CardTitle>
           <p className="text-xs text-muted-foreground truncate">
@@ -73,17 +70,46 @@ export function ApplicationCard({
           </p>
         </div>
       </CardHeader>
+
+      {/* Content */}
       <CardContent className="flex flex-col gap-3">
+        {/* Extra influencer details */}
+        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+          <div className="bg-muted/30 p-2 rounded-md text-center">
+            <p className="font-semibold text-foreground">
+              {influencer.followers_count || 0}
+            </p>
+            <p>Followers</p>
+          </div>
+          <div className="bg-muted/30 p-2 rounded-md text-center">
+            <p className="font-semibold text-foreground">
+              {influencer.engagement_rate || 0}%
+            </p>
+            <p>Engagement</p>
+          </div>
+          <div className="bg-muted/30 p-2 rounded-md text-center col-span-2">
+            <p className="font-semibold text-foreground">
+              {influencer.niche || "—"}
+            </p>
+            <p>Niche</p>
+          </div>
+        </div>
+
+        {/* Requested by info */}
         {requester && (
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-full">
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="secondary" className="rounded-full text-xs">
               Requested by
             </Badge>
             <div className="flex items-center gap-2 min-w-0">
-              {requester.avatar ? (
+              {requester.avatar && (
                 <Avatar className="h-6 w-6">
                   <AvatarImage
-                    src={requester.avatar || "/placeholder.svg"}
+                    src={
+                      requester.avatar?.startsWith("http")
+                        ? requester.avatar
+                        : `${API_HOST}${requester.avatar}`
+                    }
                     alt={requester.name}
                   />
                   <AvatarFallback aria-hidden>
@@ -92,7 +118,7 @@ export function ApplicationCard({
                       .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-              ) : null}
+              )}
               <span className="text-sm text-foreground truncate">
                 {requester.name}
               </span>
@@ -100,16 +126,19 @@ export function ApplicationCard({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Actions */}
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <Button size="sm" onClick={onApprove}>
             Approve
           </Button>
           <Button size="sm" variant="destructive" onClick={onReject}>
             Reject
           </Button>
-          <Button size="sm" variant="secondary" onClick={onDetails}>
-            Details
-          </Button>
+          <Link href={`/dashboard/brand/influencers/${influencer.id || ""}`}>
+            <Button size="sm" variant="secondary">
+              Details
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
