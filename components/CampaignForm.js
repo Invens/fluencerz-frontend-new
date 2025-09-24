@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 
-const API_BASE_URL = "http://localhost:4004";
+const API_BASE_URL = "https://api.fluencerz.com";
 
 export default function CampaignForm({ mode = "create", campaignId }) {
   const [form, setForm] = useState({

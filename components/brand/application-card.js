@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-const API_HOST = "http://localhost:4004";
+const API_HOST = "https://api.fluencerz.com";
 
 function getRequester(app) {
   const candidate =

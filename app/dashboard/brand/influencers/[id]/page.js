@@ -122,7 +122,7 @@ export default function InfluencerDetailPage() {
                   <AvatarImage
                     src={
                       influencer.profile_image
-                        ? `http://localhost:4004${influencer.profile_image}`
+                        ? `https://api.fluencerz.com${influencer.profile_image}`
                         : "/placeholder.svg"
                     }
                     alt={influencer.full_name}

@@ -121,7 +121,7 @@ export default function InstagramProfilePage() {
     setProfile(null);
 
     try {
-      const response = await fetch(`http://localhost:4004/api/instagram/${username}`);
+      const response = await fetch(`https://api.fluencerz.com/api/instagram/${username}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch profile data`);
       const data = await response.json();
 

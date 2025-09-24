@@ -7,7 +7,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 /* ----------------------------- helpers ----------------------------- */
-const API_BASE = 'http://localhost:4004';
+const API_BASE = 'https://api.fluencerz.com';
 
 /** Parse value if it’s a JSON string; otherwise return as-is */
 function parseMaybeJSON(v, fallback) {

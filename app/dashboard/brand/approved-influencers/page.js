@@ -10,7 +10,7 @@ import {
   Calendar,
 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:4004";
+const API_BASE_URL = "https://api.fluencerz.com";
 
 export default function ActiveCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);

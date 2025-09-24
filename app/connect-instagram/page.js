@@ -16,7 +16,7 @@ export default function ConnectInstagramPage() {
       }
 
       // Ask backend for Instagram login URL
-      const res = await axios.get("http://localhost:4004/connect/auth/instagram", {
+      const res = await axios.get("https://api.fluencerz.com/connect/auth/instagram", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -28,7 +28,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 
-const API_BASE_URL = "http://localhost:4004";
+const API_BASE_URL = "https://api.fluencerz.com";
 
 // Safe JSON parser
 function parseJSON(value) {

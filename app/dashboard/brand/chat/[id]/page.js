@@ -18,7 +18,7 @@ export default function CampaignChatPage() {
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const userType =
     typeof window !== "undefined" ? localStorage.getItem("userType") : null;
-  const API_BASE = "http://localhost:4004";
+  const API_BASE = "https://api.fluencerz.com";
 
   const fetchChat = async () => {
     try {

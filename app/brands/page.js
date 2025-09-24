@@ -197,7 +197,7 @@ export default function ForBrandsPage() {
                     className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition"
                   >
                     <Image
-                      src={brand.profile_image ? `http://localhost:4004${brand.profile_image}` : '/default-brand.png'}
+                      src={brand.profile_image ? `https://api.fluencerz.com${brand.profile_image}` : '/default-brand.png'}
                       alt={brand.company_name}
                       width={96}
                       height={96}

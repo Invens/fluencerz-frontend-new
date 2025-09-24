@@ -15,8 +15,8 @@ export default function Header() {
   const [userInfo, setUserInfo] = useState({ name: '', image: '' });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const API_BASE = 'http://localhost:4004/api';
-  const API_image = 'http://localhost:4004';
+  const API_BASE = 'https://api.fluencerz.com/api';
+  const API_image = 'https://api.fluencerz.com';
 
   useEffect(() => {
     const checkAuth = async () => {

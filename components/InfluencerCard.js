@@ -15,7 +15,7 @@ export default function InfluencerCard({ influencer, userType, onConnect }) {
   const [error, setError] = useState('');
   const [imgSrc, setImgSrc] = useState(
     influencer.profile_image
-      ? `http://localhost:4004${influencer.profile_image}`
+      ? `https://api.fluencerz.com${influencer.profile_image}`
       : '/default-avatar.png'
   );
   const router = useRouter();

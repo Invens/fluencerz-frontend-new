@@ -26,7 +26,7 @@ export default function AuthPopup({ isOpen, onClose, initialMode = 'login' }) {
   const [portfolio, setPortfolio] = useState('');
   const [availability, setAvailability] = useState('available');
   const [error, setError] = useState('');
-  const API_BASE = 'http://localhost:4004/api';
+  const API_BASE = 'https://api.fluencerz.com/api';
 
   // Comprehensive list of categories
   const categories = [
