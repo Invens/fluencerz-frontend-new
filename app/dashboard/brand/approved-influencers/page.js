@@ -3,12 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import BrandLayout from "@/components/BrandLayout";
 import api from "@/utils/api";
-import {
-  Users,
-  MessageCircle,
-  Info,
-  Calendar,
-} from "lucide-react";
+import { Users, MessageCircle, Info, Calendar, BarChart3 } from "lucide-react";
 
 const API_BASE_URL = "https://api.fluencerz.com";
 
@@ -68,10 +63,20 @@ export default function ActiveCampaignsPage() {
                       <span>Status: {c.status}</span>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700">
-                    {c.influencers.length} Influencer
-                    {c.influencers.length !== 1 && "s"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700">
+                      {c.influencers.length} Influencer
+                      {c.influencers.length !== 1 && "s"}
+                    </span>
+                    {/* ✅ See Report Button */}
+                    <Link
+                      href={`/dashboard/brand/campaigns/${c.id}/report`}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md bg-purple-600 text-white hover:bg-purple-700 transition"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      See Report
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Influencer list */}
@@ -127,7 +132,7 @@ export default function ActiveCampaignsPage() {
                             className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition"
                           >
                             <MessageCircle className="w-4 h-4" />
-                            Chat
+                            Media Share
                           </Link>
                           <Link
                             href={`/dashboard/brand/influencers/${inf.id}`}

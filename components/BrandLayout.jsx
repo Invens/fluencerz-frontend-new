@@ -102,6 +102,11 @@ export default function BrandLayout({ children }) {
               label="Applications"
               icon={<StickyNote size={16} />}
             />
+             {/* <NavItem
+              href="/dashboard/brand/report"
+              label="Report"
+              icon={<StickyNote size={16} />}
+            /> */}
              <NavItem
               href="/dashboard/brand/approved-influencers"
               label="Active Campaigns"

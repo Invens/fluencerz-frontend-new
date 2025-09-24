@@ -6,6 +6,7 @@ import BrandLayout from "@/components/BrandLayout";
 import api from "@/utils/api";
 import { toast } from "react-hot-toast";
 import DynamicListInput from "@/components/DynamicListInputForForm";
+import Link from "next/link";
 
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -87,8 +88,8 @@ export default function CampaignForm({ mode = "create", campaignId }) {
         const list = Array.isArray(res.data)
           ? res.data
           : Array.isArray(res.data?.data)
-          ? res.data.data
-          : [];
+            ? res.data.data
+            : [];
         setInfluencers(list);
       } catch (err) {
         console.error("❌ Error fetching influencers:", err);
@@ -464,47 +465,69 @@ export default function CampaignForm({ mode = "create", campaignId }) {
                     <div className="p-6 text-sm text-muted-foreground">No influencers match your search.</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
                       {filteredInfluencers.map((inf) => {
                         const checked = selectedInfluencers.includes(inf.id);
-                        const img =
-                          normalizeImg(inf.profile_picture_url || inf.profile_image || "");
+                        const img = inf.profile_picture_url || inf.profile_image || "";
+                        const firstLetter = (inf.full_name || "?")[0].toUpperCase();
 
                         return (
                           <button
                             key={inf.id}
                             type="button"
                             onClick={() => toggleInfluencer(inf.id)}
-                            className={`group flex items-center gap-3 rounded-lg border p-3 text-left transition ${
-                              checked
+                            className={`group flex items-center gap-3 rounded-lg border p-3 text-left transition ${checked
                                 ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
                                 : "hover:border-foreground/30"
-                            }`}
+                              }`}
                           >
-                            <img
-                              src={img}
-                              alt={inf.full_name}
-                              className="h-12 w-12 rounded-full object-cover border"
-                            />
+                            {/* Avatar */}
+                            <div className="h-12 w-12 rounded-full flex items-center justify-center border bg-gray-100 text-gray-600 font-semibold">
+                              {img ? (
+                                <img
+                                  src={normalizeImg(img)}
+                                  alt={inf.full_name}
+                                  className="h-12 w-12 rounded-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                    e.currentTarget.parentElement.textContent = firstLetter;
+                                  }}
+                                />
+                              ) : (
+                                firstLetter
+                              )}
+                            </div>
+
+                            {/* Info */}
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium truncate">{inf.full_name}</p>
+                                <Link
+                                  href={`/dashboard/brand/influencers/${inf.id}`}
+                                  onClick={(e) => e.stopPropagation()} // prevent toggle
+                                  className="font-medium truncate text-blue-600 hover:underline"
+                                >
+                                  {inf.full_name}
+                                </Link>
                                 {checked && <Badge className="h-5">Selected</Badge>}
                               </div>
                               <p className="text-xs text-muted-foreground truncate">
                                 {inf.niche || "—"} · {(inf.followers_count || 0).toLocaleString()} followers
                               </p>
                             </div>
+
+                            {/* Checkbox */}
                             <input
                               type="checkbox"
                               aria-label={`Select ${inf.full_name}`}
                               checked={checked}
                               onChange={() => toggleInfluencer(inf.id)}
                               className="h-4 w-4"
-                              onClick={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()} // prevent click bubbling
                             />
                           </button>
                         );
                       })}
+
                     </div>
                   )}
                 </div>
@@ -524,8 +547,8 @@ export default function CampaignForm({ mode = "create", campaignId }) {
                   {saving
                     ? "Saving..."
                     : mode === "edit"
-                    ? "Update Campaign"
-                    : "Create Campaign"}
+                      ? "Update Campaign"
+                      : "Create Campaign"}
                 </Button>
               </div>
             </motion.form>

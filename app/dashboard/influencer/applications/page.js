@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/utils/api';
 import InfluencerLayout from '@/components/InfluencerLayout';
 import Link from 'next/link';
-import { Calendar, CheckCircle, Clock, FileText, MessageSquare } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, FileText, MessageSquare, ClipboardList } from 'lucide-react';
 
 export default function AppliedCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -139,13 +139,23 @@ export default function AppliedCampaignsPage() {
                   )}
 
                   {app.status === 'approved' && (
-                    <Link
-                      href={`/dashboard/influencer/campaigns/${app.campaign.id}/chat`}
-                      className="w-full text-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow hover:from-purple-600 hover:to-blue-600 transition text-sm font-medium"
-                    >
-                      <MessageSquare size={14} className="inline mr-1" />
-                      Media Library
-                    </Link>
+                    <>
+                      <Link
+                        href={`/dashboard/influencer/campaigns/${app.campaign.id}/chat`}
+                        className="w-full text-center px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow hover:from-purple-600 hover:to-blue-600 transition text-sm font-medium"
+                      >
+                        <MessageSquare size={14} className="inline mr-1" />
+                        Media Library
+                      </Link>
+
+                      <Link
+                        href={`/dashboard/influencer/campaigns/${app.campaign.id}/deliverables`}
+                        className="w-full text-center px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow hover:from-green-600 hover:to-emerald-700 transition text-sm font-medium"
+                      >
+                        <ClipboardList size={14} className="inline mr-1" />
+                        Submit Report
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>
