@@ -76,7 +76,7 @@ export default function CampaignForm({ mode = "create", campaignId }) {
     }
   };
 
-  // ------------ fetch influencers ------------
+  // ------------ fetch influencers --------------
   useEffect(() => {
     const fetchInfluencers = async () => {
       setInflLoading(true);
