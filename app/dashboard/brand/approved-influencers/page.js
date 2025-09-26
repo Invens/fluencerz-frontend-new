@@ -36,7 +36,7 @@ export default function ActiveCampaignsPage() {
             Active Campaigns
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-            Track all live collaborations and influencer performance here.
+            Track all live collaborations and influencer performance here hassle free
           </p>
         </div>
 
